@@ -1,10 +1,11 @@
 html {
   cursor: none;
-  overflow:hidden;
+  overflow: hidden;
+  background: #000;
 }
 
-::-webkit-scrollbar { 
-    display: none; 
+::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -94,7 +95,7 @@ body {
 header {
   text-transform: uppercase;
   font-size: 15px;
-  font-family: "Roboto Condensed";
+  font-family: "Roboto Condensed", Arial, Helvetica, sans-serif;
   font-weight: 400;
   border-bottom: 1px solid #666;
   line-height: 15px;
@@ -113,11 +114,22 @@ sup {
  */
 
 .module {
-  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-.module:first-child {
-  margin-top: 0;
+.region.bottom .module {
+  margin-top: 30px;
+  margin-bottom: 0;
+}
+
+.no-wrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pre-line {
+  white-space: pre-line;
 }
 
 /**
@@ -134,10 +146,16 @@ sup {
   left: -60px;
   right: -60px;
   bottom: -60px;
+  pointer-events: none;
+}
+
+.region.fullscreen * {
+  pointer-events: auto;
 }
 
 .region.right {
   right: 0;
+  text-align: right;
 }
 
 .region.top {
@@ -146,6 +164,10 @@ sup {
 
 .region.top .container {
   margin-bottom: 25px;
+}
+
+.region.bottom .container {
+  margin-top: 25px;
 }
 
 .region.top .container:empty {
@@ -170,10 +192,6 @@ sup {
 
 .region.bottom {
   bottom: 0;
-}
-
-.region.bottom .container {
-  margin-top: 25px;
 }
 
 .region.bottom .container:empty {
@@ -216,10 +234,6 @@ sup {
 
 .region.left {
   text-align: left;
-}
-
-.region.right {
-  text-align: right;
 }
 
 .region table {

@@ -12,7 +12,6 @@ var CalendarFetcher = require("./calendarfetcher.js");
 module.exports = NodeHelper.create({
 	// Override start method.
 	start: function() {
-		var self = this;
 		var events = [];
 
 		this.fetchers = [];
@@ -25,7 +24,7 @@ module.exports = NodeHelper.create({
 	socketNotificationReceived: function(notification, payload) {
 		if (notification === "ADD_CALENDAR") {
 			//console.log('ADD_CALENDAR: ');
-			this.createFetcher(payload.url, payload.fetchInterval, payload.maximumEntries, payload.maximumNumberOfDays);
+			this.createFetcher(payload.url, payload.fetchInterval, payload.excludedEvents, payload.maximumEntries, payload.maximumNumberOfDays, payload.auth, payload.broadcastPastEvents);
 		}
 	},
 
@@ -37,7 +36,7 @@ module.exports = NodeHelper.create({
 	 * attribute reloadInterval number - Reload interval in milliseconds.
 	 */
 
-	createFetcher: function(url, fetchInterval, maximumEntries, maximumNumberOfDays) {
+	createFetcher: function(url, fetchInterval, excludedEvents, maximumEntries, maximumNumberOfDays, auth, broadcastPastEvents) {
 		var self = this;
 
 		if (!validUrl.isUri(url)) {
@@ -48,7 +47,7 @@ module.exports = NodeHelper.create({
 		var fetcher;
 		if (typeof self.fetchers[url] === "undefined") {
 			console.log("Create new calendar fetcher for url: " + url + " - Interval: " + fetchInterval);
-			fetcher = new CalendarFetcher(url, fetchInterval, maximumEntries, maximumNumberOfDays);
+			fetcher = new CalendarFetcher(url, fetchInterval, excludedEvents, maximumEntries, maximumNumberOfDays, auth, broadcastPastEvents);
 
 			fetcher.onReceive(function(fetcher) {
 				//console.log('Broadcast events.');
@@ -61,6 +60,7 @@ module.exports = NodeHelper.create({
 			});
 
 			fetcher.onError(function(fetcher, error) {
+				console.error("Calendar Error. Could not fetch calendar: ", fetcher.url(), error);
 				self.sendSocketNotification("FETCH_ERROR", {
 					url: fetcher.url(),
 					error: error

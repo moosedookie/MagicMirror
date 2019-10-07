@@ -8,7 +8,7 @@
 
 var Loader = (function() {
 
-	/* Create helper valiables */
+	/* Create helper variables */
 
 	var loadedModuleFiles = [];
 	var loadedFiles = [];
@@ -32,10 +32,10 @@ var Loader = (function() {
 				});
 			} else {
 				// All modules loaded. Load custom.css
-				// This is done after all the moduels so we can
-				// overwrite all the defined styls.
+				// This is done after all the modules so we can
+				// overwrite all the defined styles.
 
-				loadFile("css/custom.css", function() {
+				loadFile(config.customCss, function() {
 					// custom.css loaded. Start all modules.
 					startModules();
 				});
@@ -55,7 +55,7 @@ var Loader = (function() {
 			module.start();
 		}
 
-		// Notifiy core of loded modules.
+		// Notify core of loaded modules.
 		MM.modulesStarted(moduleObjects);
 	};
 
@@ -89,6 +89,10 @@ var Loader = (function() {
 				moduleFolder =  config.paths.modules + "/default/" + module;
 			}
 
+			if (moduleData.disabled === true) {
+				continue;
+			}
+
 			moduleFiles.push({
 				index: m,
 				identifier: "module_" + m + "_" + module,
@@ -100,7 +104,6 @@ var Loader = (function() {
 				config: moduleData.config,
 				classes: (typeof moduleData.classes !== "undefined") ? moduleData.classes + " " + module : module
 			});
-
 		}
 
 		return moduleFiles;
@@ -117,9 +120,13 @@ var Loader = (function() {
 
 		var afterLoad = function() {
 			var moduleObject = Module.create(module.name);
-			bootstrapModule(module, moduleObject, function() {
+			if (moduleObject) {
+				bootstrapModule(module, moduleObject, function() {
+					callback();
+				});
+			} else {
 				callback();
-			});
+			}
 		};
 
 		if (loadedModuleFiles.indexOf(url) !== -1) {
@@ -130,7 +137,6 @@ var Loader = (function() {
 				afterLoad();
 			});
 		}
-
 	};
 
 	/* bootstrapModule(module, mObj)
@@ -156,7 +162,6 @@ var Loader = (function() {
 				});
 			});
 		});
-
 	};
 
 	/* loadFile(fileName)
@@ -178,6 +183,11 @@ var Loader = (function() {
 			script.onload = function() {
 				if (typeof callback === "function") {callback();}
 			};
+			script.onerror = function() {
+				console.error("Error on loading script:", fileName);
+				if (typeof callback === "function") {callback();}
+			};
+
 			document.getElementsByTagName("body")[0].appendChild(script);
 			break;
 		case "css":
@@ -189,10 +199,14 @@ var Loader = (function() {
 			stylesheet.onload = function() {
 				if (typeof callback === "function") {callback();}
 			};
+			stylesheet.onerror = function() {
+				console.error("Error on loading stylesheet:", fileName);
+				if (typeof callback === "function") {callback();}
+			};
+
 			document.getElementsByTagName("head")[0].appendChild(stylesheet);
 			break;
 		}
-
 	};
 
 	/* Public Methods */
@@ -243,5 +257,4 @@ var Loader = (function() {
 			loadFile(module.file(fileName), callback);
 		}
 	};
-
 })();
